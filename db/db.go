@@ -50,5 +50,12 @@ func (s *StudentHandler) GetStudents() (students []Student, err error) {
 	students = []Student{}
 	err = s.DB.Find(&students).Error
 
-	return students, err
+	return
+}
+
+func (s *StudentHandler) GetStudent(id int) (student Student, err error) {
+	student = Student{}
+	err = s.DB.First(&student, id).Error
+
+	return
 }

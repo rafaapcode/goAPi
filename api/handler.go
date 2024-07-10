@@ -17,7 +17,12 @@ func (api *API) GetStudents(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, "Nenhum estudante")
 	}
-	return c.JSON(http.StatusOK, students)
+
+	listOfStudents := map[string][]schemas.StudentResponse{
+		"students": schemas.NewReponse(students),
+	}
+
+	return c.JSON(http.StatusOK, listOfStudents)
 }
 
 func (api *API) GetStudent(c echo.Context) error {

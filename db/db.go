@@ -1,9 +1,7 @@
 package db
 
 import (
-	"fmt"
-	"log"
-
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -27,7 +25,7 @@ func Init() *gorm.DB {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err).Msgf("Failed to initialize MYSQL: %s", err.Error())
 	}
 
 	db.AutoMigrate(&Student{})
@@ -40,10 +38,11 @@ func NewStudentHandler(db *gorm.DB) *StudentHandler {
 
 func (s *StudentHandler) AddStudent(student *Student) error {
 	if res := s.DB.Create(student); res.Error != nil {
+		log.Error().Msg("Failed to create students")
 		return res.Error
 	}
 
-	fmt.Print("Student created")
+	log.Info().Msg("Create student!")
 	return nil
 }
 

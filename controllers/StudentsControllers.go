@@ -9,7 +9,11 @@ import (
 )
 
 func GetStudents(c echo.Context) error {
-	return c.String(http.StatusOK, "Pegando todos os estudantes")
+	students, err := db.GetStudents()
+	if err != nil {
+		return c.String(http.StatusNotFound, "Nenhum estudante")
+	}
+	return c.JSON(http.StatusOK, students)
 }
 
 func GetStudent(c echo.Context) error {

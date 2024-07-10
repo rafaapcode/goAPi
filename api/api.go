@@ -1,12 +1,44 @@
-package studentController
+package apí
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/rafaapcode/goAPi/db"
+	"gorm.io/gorm"
 )
+
+type API struct {
+	Echo *echo.Echo
+	DB   *gorm.DB
+}
+
+func NewServer() *API {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	db := db.Init()
+
+	return &API{
+		Echo: e,
+		DB:   db,
+	}
+}
+
+func (api *API) ConfigureRoutes() {
+	api.Echo.GET("/students", GetStudents)
+	api.Echo.POST("/students", CreateStudents)
+	api.Echo.PUT("/students/:id", UpdateStudent)
+	api.Echo.GET("/students/:id", GetStudent)
+	api.Echo.DELETE("/students/:id", DeleteStudents)
+}
+
+func (api *API) Start() error {
+	return api.Echo.Start(":8080")
+}
 
 func GetStudents(c echo.Context) error {
 	students, err := db.GetStudents()

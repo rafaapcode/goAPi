@@ -82,9 +82,27 @@ func (api *API) UpdateStudent(c echo.Context) error {
 }
 
 func (api *API) DeleteStudents(c echo.Context) error {
-	var id string = c.Param("id")
-	student := fmt.Sprintf("Student %s will be deleted", id)
-	return c.String(http.StatusOK, student)
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to get student ID")
+	}
+
+	student, err := api.DB.GetStudent(id)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return c.String(http.StatusNotFound, fmt.Sprintf("Student with id %d, not found.", id))
+	}
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to get student")
+	}
+
+	if err := api.DB.DeleteStudent(&student); err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to delete student")
+	}
+
+	return c.JSON(http.StatusOK, student)
 }
 
 func updateStudentInfo(receivedStudent, updateStudent db.Student) db.Student {

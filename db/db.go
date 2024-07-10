@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/rafaapcode/goAPi/schemas"
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -8,15 +9,6 @@ import (
 
 type StudentHandler struct {
 	DB *gorm.DB
-}
-
-type Student struct {
-	gorm.Model
-	Name   string `json:"name"`
-	CPF    int    `json:"cpf"`
-	Email  string `json:"email"`
-	Age    int    `json:"age"`
-	Active bool   `json:"active"`
 }
 
 func Init() *gorm.DB {
@@ -28,7 +20,7 @@ func Init() *gorm.DB {
 		log.Fatal().Err(err).Msgf("Failed to initialize MYSQL: %s", err.Error())
 	}
 
-	db.AutoMigrate(&Student{})
+	db.AutoMigrate(&schemas.Student{})
 	return db
 }
 
@@ -36,7 +28,7 @@ func NewStudentHandler(db *gorm.DB) *StudentHandler {
 	return &StudentHandler{DB: db}
 }
 
-func (s *StudentHandler) AddStudent(student *Student) error {
+func (s *StudentHandler) AddStudent(student *schemas.Student) error {
 	if res := s.DB.Create(student); res.Error != nil {
 		log.Error().Msg("Failed to create students")
 		return res.Error
@@ -46,24 +38,24 @@ func (s *StudentHandler) AddStudent(student *Student) error {
 	return nil
 }
 
-func (s *StudentHandler) GetStudents() (students []Student, err error) {
-	students = []Student{}
+func (s *StudentHandler) GetStudents() (students []schemas.Student, err error) {
+	students = []schemas.Student{}
 	err = s.DB.Find(&students).Error
 
 	return
 }
 
-func (s *StudentHandler) GetStudent(id int) (student Student, err error) {
-	student = Student{}
+func (s *StudentHandler) GetStudent(id int) (student schemas.Student, err error) {
+	student = schemas.Student{}
 	err = s.DB.First(&student, id).Error
 
 	return
 }
 
-func (s *StudentHandler) UpdateStudent(newStudent *Student) error {
+func (s *StudentHandler) UpdateStudent(newStudent *schemas.Student) error {
 	return s.DB.Save(newStudent).Error
 }
 
-func (s *StudentHandler) DeleteStudent(student *Student) error {
+func (s *StudentHandler) DeleteStudent(student *schemas.Student) error {
 	return s.DB.Delete(student).Error
 }
